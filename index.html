@@ -3,456 +3,379 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rossilber — B24 Dashboard</title>
+  <title>B24 Task Dashboard Builder</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --corp: #2f7d32;
-      --corp-dark: #1f5f24;
-      --corp-soft: #eaf5ea;
-      --bg: #f2f5f8;
+      --bg: #f3f6fb;
       --panel: #ffffff;
-      --text: #1d2939;
-      --muted: #667085;
-      --border: #d0d5dd;
-      --shadow: 0 10px 24px rgba(16, 24, 40, 0.08);
-      --warning: #b54708;
-      --danger: #b42318;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --accent: #14b8a6;
+      --danger: #dc2626;
+      --border: #e5e7eb;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
     }
 
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
-      font-family: Segoe UI, Inter, Arial, sans-serif;
-      background: var(--bg);
+      font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, #eef4ff, var(--bg));
       color: var(--text);
     }
 
-    .topbar {
-      background: linear-gradient(0deg, var(--corp-dark), var(--corp));
-      color: #fff;
-      border-bottom: 3px solid #19451b;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
-    }
-
-    .top-inner {
-      max-width: 1500px;
-      margin: 0 auto;
-      padding: 10px 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .brand {
-      font-size: 30px;
-      font-weight: 800;
-      letter-spacing: 0.4px;
-      color: #d9ffd7;
-      text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
-    }
-
-    .ribbon {
-      display: flex;
-      gap: 1px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 6px;
-      overflow: hidden;
-      flex-wrap: wrap;
-    }
-
-    .ribbon span {
-      background: rgba(0, 0, 0, 0.16);
-      padding: 8px 12px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #e6f6e6;
-    }
-
     .container {
-      max-width: 1500px;
+      max-width: 1400px;
       margin: 0 auto;
-      padding: 18px;
+      padding: 24px;
     }
+
+    .title { margin: 0 0 8px; font-size: 30px; }
+    .subtitle { margin: 0 0 20px; color: var(--muted); }
 
     .panel {
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 16px;
       box-shadow: var(--shadow);
-      padding: 14px;
-      margin-bottom: 14px;
+      padding: 16px;
+      margin-bottom: 18px;
     }
 
     .controls {
       display: grid;
-      grid-template-columns: 1.3fr 1fr auto;
-      gap: 10px;
+      gap: 12px;
+      grid-template-columns: repeat(12, 1fr);
       align-items: end;
     }
 
     .field { display: flex; flex-direction: column; gap: 6px; }
-    .field label { font-size: 12px; color: var(--muted); }
+    .field label { font-size: 13px; color: var(--muted); }
 
     input[type="text"], input[type="file"], select {
       width: 100%;
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 9px 10px;
+      border-radius: 10px;
+      padding: 10px 12px;
       font-size: 14px;
       background: #fff;
     }
 
     button {
       border: 0;
-      border-radius: 8px;
-      padding: 10px 14px;
+      border-radius: 10px;
+      padding: 11px 16px;
+      background: linear-gradient(135deg, var(--primary), #1d4ed8);
       color: #fff;
       font-weight: 600;
       cursor: pointer;
-      background: linear-gradient(0deg, var(--corp-dark), var(--corp));
     }
 
-    button:hover { filter: brightness(1.05); }
-    .btn-muted { background: #667085; }
-    .btn-danger { background: #b42318; }
-
-    .tabbar {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
-
-    .tab-btn {
-      background: #eef2f6;
-      color: #344054;
-      border: 1px solid #c9d2dd;
-    }
-
-    .tab-btn.active {
-      background: var(--corp-soft);
-      color: #134716;
-      border-color: #9bc59d;
-      box-shadow: inset 0 0 0 1px #b7ddb9;
-    }
-
-    .hidden { display: none !important; }
+    button:hover { opacity: 0.95; }
+    .btn-secondary { background: linear-gradient(135deg, #0f766e, var(--accent)); }
 
     .cards {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
+      gap: 12px;
     }
 
-    .card { border: 1px solid var(--border); border-radius: 10px; padding: 10px; background: #fff; }
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
     .card .label { color: var(--muted); font-size: 12px; }
-    .card .value { font-size: 26px; font-weight: 800; margin-top: 4px; }
+    .card .value { font-size: 26px; margin-top: 6px; font-weight: 700; }
 
-    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-    .chart-box { min-height: 310px; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
 
-    .filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+    .chart-box { min-height: 320px; }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
 
     .table-wrap {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      max-height: 520px;
       overflow: auto;
-      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      max-height: 460px;
     }
 
     table {
       border-collapse: collapse;
       width: 100%;
       font-size: 13px;
+      background: #fff;
     }
 
     th, td {
-      border-bottom: 1px solid #eaecf0;
-      border-right: 1px solid #f2f4f7;
-      padding: 6px 8px;
-      white-space: nowrap;
+      border-bottom: 1px solid #f1f5f9;
       text-align: left;
-      vertical-align: top;
+      padding: 8px;
+      white-space: nowrap;
     }
 
     th {
       position: sticky;
       top: 0;
-      z-index: 2;
-      background: #d7e7d5;
-      color: #193b1b;
-      cursor: pointer;
+      background: #f8fafc;
+      z-index: 1;
     }
 
+    .hidden { display: none; }
+    .row { display: grid; gap: 16px; grid-template-columns: 1.1fr 0.9fr; }
+
     .chip {
-      background: #eff8ef;
-      border: 1px solid #cbe4cc;
-      color: #1e5d23;
+      display: inline-flex;
+      align-items: center;
+      background: #eff6ff;
+      color: #1e3a8a;
+      border: 1px solid #bfdbfe;
       border-radius: 999px;
       font-size: 12px;
       padding: 4px 8px;
       margin-right: 6px;
-      display: inline-block;
       margin-bottom: 6px;
     }
 
-    .task-toolbar {
-      display: grid;
-      grid-template-columns: 260px 1fr auto auto auto;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .indent-1 { padding-left: 20px; }
-    .indent-2 { padding-left: 36px; }
-    .indent-3 { padding-left: 52px; }
-
-    .row-overdue { background: #fff2f2; }
-    .row-done { background: #f0fdf4; }
-
-    .status-line { color: var(--muted); margin: 6px 0 0; font-size: 13px; }
-
-    @media (max-width: 1024px) {
-      .controls, .task-toolbar, .grid-2 { grid-template-columns: 1fr; }
+    @media (max-width: 1000px) {
+      .controls { grid-template-columns: 1fr; }
+      .grid-2, .row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="top-inner">
-      <div class="brand">Rossilber</div>
-      <div class="ribbon">
-        <span>Файл</span><span>Задача</span><span>Ресурс</span><span>Отчет</span><span>Проект</span><span>Вид</span>
-      </div>
-    </div>
-  </header>
-
-  <main class="container">
-    <section class="panel">
-      <h1 style="margin:0 0 6px; font-size: 24px;">Единый центр задач и дашборда Bitrix24</h1>
-      <p style="margin:0; color:var(--muted);">Загрузите выгрузку, укажите направление и переключайтесь между вкладками «Дашборд» и «Форма задач».</p>
-    </section>
+  <div class="container">
+    <h1 class="title">Автодашборд задач Битрикс24</h1>
+    <p class="subtitle">Загрузите выгрузку задач и получите интерактивный управленческий обзор по направлению.</p>
 
     <section class="panel">
       <div class="controls">
-        <div class="field">
+        <div class="field" style="grid-column: span 5;">
           <label for="fileInput">Файл выгрузки задач (.xls/.html/.csv)</label>
           <input id="fileInput" type="file" accept=".xls,.html,.htm,.csv" />
         </div>
-        <div class="field">
+        <div class="field" style="grid-column: span 5;">
           <label for="directionInput">Название направления</label>
-          <input id="directionInput" type="text" placeholder="Например: ИИ-продукты" />
+          <input id="directionInput" type="text" placeholder="Например: Продажи B2B" />
         </div>
-        <button id="buildBtn">Сформировать</button>
+        <div class="field" style="grid-column: span 2;">
+          <button id="buildBtn">Сформировать</button>
+        </div>
       </div>
-      <p id="status" class="status-line"></p>
+      <p id="status" class="subtitle" style="margin-top:10px; margin-bottom:0;"></p>
     </section>
 
-    <section id="workspace" class="hidden">
-      <div class="tabbar panel" style="padding:8px;">
-        <button class="tab-btn active" data-tab="dashboardTab">Дашборд</button>
-        <button class="tab-btn" data-tab="tasksTab">Форма задач (Project)</button>
-      </div>
-
-      <section id="dashboardTab">
-        <section class="panel">
-          <h2 id="dashboardTitle" style="margin:0 0 8px;">Сводка</h2>
-          <div id="metaChips"></div>
-          <div class="cards" id="summaryCards"></div>
-        </section>
-
-        <section class="panel">
-          <h3 style="margin-top:0;">Фильтры</h3>
-          <div id="filters" class="filters"></div>
-        </section>
-
-        <section class="grid-2">
-          <div class="panel chart-box"><canvas id="statusChart"></canvas></div>
-          <div class="panel chart-box"><canvas id="projectChart"></canvas></div>
-        </section>
-
-        <section class="grid-2">
-          <div class="panel chart-box"><canvas id="executorChart"></canvas></div>
-          <div class="panel chart-box"><canvas id="timelineChart"></canvas></div>
-        </section>
-
-        <section class="panel" style="display:grid; grid-template-columns: 1.2fr 0.8fr; gap:12px;">
-          <div>
-            <h3 style="margin-top:0;">Структура по полю</h3>
-            <div class="field" style="max-width:340px; margin-bottom:8px;">
-              <label for="groupFieldSelect">Поле группировки</label>
-              <select id="groupFieldSelect"></select>
-            </div>
-            <div class="table-wrap"><table id="groupTable"></table></div>
-          </div>
-          <div>
-            <h3 style="margin-top:0;">Проблемные зоны</h3>
-            <div id="riskBlock"></div>
-          </div>
-        </section>
+    <section id="dashboard" class="hidden">
+      <section class="panel">
+        <h2 id="dashboardTitle" style="margin-top:0;">Сводка</h2>
+        <div id="metaChips"></div>
+        <div class="cards" id="summaryCards"></div>
       </section>
 
-      <section id="tasksTab" class="hidden">
-        <section class="panel">
-          <h2 style="margin:0 0 10px;">Форма задач в едином окне с дашбордом</h2>
-          <div class="task-toolbar">
-            <input id="taskSearch" type="text" placeholder="Поиск по всем полям..." />
-            <div></div>
-            <button id="addRowBtn">+ Добавить задачу</button>
-            <button id="deleteRowsBtn" class="btn-danger">Удалить выбранные</button>
-            <button id="exportCsvBtn" class="btn-muted">Экспорт CSV</button>
+      <section class="panel">
+        <h3 style="margin-top:0;">Фильтры</h3>
+        <div id="filters" class="filters"></div>
+      </section>
+
+      <section class="grid-2">
+        <div class="panel chart-box"><canvas id="statusChart"></canvas></div>
+        <div class="panel chart-box"><canvas id="projectChart"></canvas></div>
+      </section>
+
+      <section class="grid-2">
+        <div class="panel chart-box"><canvas id="executorChart"></canvas></div>
+        <div class="panel chart-box"><canvas id="timelineChart"></canvas></div>
+      </section>
+
+      <section class="panel row">
+        <div>
+          <h3 style="margin-top:0;">Структура по полю</h3>
+          <div class="field" style="max-width:340px; margin-bottom:10px;">
+            <label for="groupFieldSelect">Поле группировки</label>
+            <select id="groupFieldSelect"></select>
           </div>
-          <div class="table-wrap"><table id="taskTable"></table></div>
-          <p class="status-line">Базовый функционал: сортировка по клику на заголовок, inline-редактирование ячеек, выбор/удаление строк, экспорт в CSV.</p>
-        </section>
+          <div class="table-wrap"><table id="groupTable"></table></div>
+        </div>
+        <div>
+          <h3 style="margin-top:0;">Топ проблемных зон</h3>
+          <div id="riskBlock"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3 style="margin-top:0;">Полный перечень задач</h3>
+        <div class="table-wrap"><table id="dataTable"></table></div>
       </section>
     </section>
-  </main>
+  </div>
 
   <script>
-    const statusHints = ['статус', 'status'];
-    const projectHints = ['проект', 'project'];
+    const dateFieldsHint = [
+      'дата', 'срок', 'deadline', 'activity', 'актив', 'создан', 'измен', 'закры', 'начал', 'оконч'
+    ];
+    const peopleFieldsHint = ['исполнитель', 'постановщик', 'соисполн', 'наблюд', 'responsible', 'creator'];
+    const statusFieldsHint = ['статус', 'status'];
+    const projectFieldsHint = ['проект', 'project'];
 
     const state = {
       rows: [],
       headers: [],
       filteredRows: [],
-      filters: {},
-      lowCardinalityFields: [],
       charts: {},
-      sortField: null,
-      sortDir: 1,
-      taskSearch: ''
+      lowCardinalityFields: [],
+      filters: {}
     };
 
     const fileInput = document.getElementById('fileInput');
     const directionInput = document.getElementById('directionInput');
     const buildBtn = document.getElementById('buildBtn');
+    const dashboard = document.getElementById('dashboard');
     const statusEl = document.getElementById('status');
-    const workspace = document.getElementById('workspace');
 
     buildBtn.addEventListener('click', async () => {
       if (!fileInput.files[0]) {
-        statusEl.textContent = 'Выберите файл перед построением.';
+        statusEl.textContent = 'Выберите файл перед построением дашборда.';
         return;
       }
       statusEl.textContent = 'Обработка файла...';
-
       try {
-        const parsed = await parseInputFile(fileInput.files[0]);
+        const file = fileInput.files[0];
+        const parsed = await parseInputFile(file);
         state.rows = parsed.rows;
         state.headers = parsed.headers;
-        if (!state.rows.length) throw new Error('В файле нет строк с задачами.');
+        if (!state.rows.length) throw new Error('В файле не найдено строк с задачами.');
 
         state.lowCardinalityFields = state.headers.filter((h) => {
-          const u = new Set(state.rows.map((r) => normalizeCell(r[h])).filter(Boolean));
-          return u.size > 1 && u.size <= 40;
+          const unique = new Set(state.rows.map((r) => normalizeCell(r[h])).filter(Boolean));
+          return unique.size > 1 && unique.size <= 35;
         });
 
         buildFilters();
         applyFiltersAndRender();
-        workspace.classList.remove('hidden');
-        switchTab('dashboardTab');
-        statusEl.textContent = `Готово: ${state.rows.length} задач, ${state.headers.length} полей.`;
-      } catch (err) {
-        statusEl.textContent = `Ошибка: ${err.message}`;
+        dashboard.classList.remove('hidden');
+        statusEl.textContent = `Готово: ${state.rows.length} задач, ${state.headers.length} полей обработано.`;
+      } catch (e) {
+        console.error(e);
+        statusEl.textContent = 'Ошибка обработки файла: ' + e.message;
       }
-    });
-
-    document.querySelectorAll('.tab-btn').forEach((btn) => {
-      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-    });
-
-    function switchTab(tabId) {
-      ['dashboardTab', 'tasksTab'].forEach((id) => {
-        document.getElementById(id).classList.toggle('hidden', id !== tabId);
-      });
-      document.querySelectorAll('.tab-btn').forEach((btn) => {
-        btn.classList.toggle('active', btn.dataset.tab === tabId);
-      });
-    }
-
-    document.getElementById('taskSearch').addEventListener('input', (e) => {
-      state.taskSearch = e.target.value.toLowerCase();
-      renderTaskTable();
-    });
-
-    document.getElementById('addRowBtn').addEventListener('click', () => {
-      const obj = {};
-      state.headers.forEach((h) => obj[h] = '');
-      obj['Название'] = obj['Название'] || 'Новая задача';
-      state.rows.unshift(obj);
-      applyFiltersAndRender();
-    });
-
-    document.getElementById('deleteRowsBtn').addEventListener('click', () => {
-      const checks = Array.from(document.querySelectorAll('.row-select:checked')).map((c) => Number(c.dataset.index));
-      if (!checks.length) return;
-      const targets = new Set(checks.map((i) => state.filteredRows[i]));
-      state.rows = state.rows.filter((r) => !targets.has(r));
-      applyFiltersAndRender();
-    });
-
-    document.getElementById('exportCsvBtn').addEventListener('click', () => {
-      const rows = getTaskRowsForView();
-      const csv = [state.headers.join(';')].concat(rows.map((r) => state.headers.map((h) => escapeCsv(r[h] || '')).join(';'))).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'rossilber_tasks_export.csv';
-      a.click();
-      URL.revokeObjectURL(a.href);
     });
 
     async function parseInputFile(file) {
       const ext = file.name.split('.').pop().toLowerCase();
       const buffer = await file.arrayBuffer();
+
+      if (ext === 'csv') {
+        const text = decodeText(buffer);
+        return parseCsv(text);
+      }
+
       const text = decodeText(buffer);
-      if (ext === 'csv') return parseCsv(text);
-      if (text.includes('<table') || text.includes('<TABLE')) return parseHtmlTable(text);
+      if (text.includes('<table') || text.includes('<TABLE')) {
+        return parseHtmlTable(text);
+      }
       return parseCsv(text);
     }
 
     function decodeText(buffer) {
       const utf = new TextDecoder('utf-8', { fatal: false }).decode(buffer);
-      if ((utf.match(/�/g) || []).length > 5) return new TextDecoder('windows-1251', { fatal: false }).decode(buffer);
+      if ((utf.match(/�/g) || []).length > 5) {
+        return new TextDecoder('windows-1251', { fatal: false }).decode(buffer);
+      }
       return utf;
     }
 
     function parseHtmlTable(html) {
       const doc = new DOMParser().parseFromString(html, 'text/html');
       const table = doc.querySelector('table');
-      if (!table) throw new Error('HTML-таблица не найдена.');
+      if (!table) throw new Error('HTML-таблица в файле не найдена.');
       const trs = Array.from(table.querySelectorAll('tr')).filter((tr) => tr.querySelectorAll('td,th').length);
+      if (trs.length < 2) throw new Error('Недостаточно строк для анализа.');
+
       const headers = Array.from(trs[0].querySelectorAll('th,td')).map((x, i) => normalizeCell(x.textContent) || `Поле_${i + 1}`);
-      const rows = trs.slice(1).map((tr) => {
-        const tds = Array.from(tr.querySelectorAll('td,th'));
+      const rows = [];
+      for (let i = 1; i < trs.length; i++) {
+        const cells = Array.from(trs[i].querySelectorAll('td,th'));
+        if (!cells.length) continue;
         const obj = {};
-        headers.forEach((h, i) => obj[h] = normalizeCell(tds[i]?.textContent || ''));
-        return obj;
-      }).filter((r) => Object.values(r).some(Boolean));
+        headers.forEach((h, idx) => {
+          obj[h] = normalizeCell(cells[idx]?.textContent || '');
+        });
+        rows.push(obj);
+      }
       return { headers, rows };
     }
 
     function parseCsv(text) {
       const lines = text.split(/\r?\n/).filter(Boolean);
-      const delim = [',', ';', '\t'].sort((a, b) => lines[0].split(b).length - lines[0].split(a).length)[0];
+      const delim = [',', ';', '\t'].sort((a, b) => (lines[0].split(b).length - lines[0].split(a).length))[0];
       const headers = lines[0].split(delim).map((h, i) => normalizeCell(h) || `Поле_${i + 1}`);
       const rows = lines.slice(1).map((line) => {
         const parts = line.split(delim);
         const obj = {};
         headers.forEach((h, i) => obj[h] = normalizeCell(parts[i] || ''));
         return obj;
-      }).filter((r) => Object.values(r).some(Boolean));
+      });
       return { headers, rows };
     }
 
     function normalizeCell(v) {
-      return String(v ?? '').replace(/\s+/g, ' ').trim();
+      return String(v ?? '').replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, '');
+    }
+
+    function buildFilters() {
+      const root = document.getElementById('filters');
+      root.innerHTML = '';
+      state.filters = {};
+
+      state.lowCardinalityFields.slice(0, 10).forEach((field) => {
+        const values = Array.from(new Set(state.rows.map((r) => r[field]).filter(Boolean))).sort();
+        const wrap = document.createElement('div');
+        wrap.className = 'field';
+        wrap.innerHTML = `<label>${field}</label>`;
+        const select = document.createElement('select');
+        select.innerHTML = `<option value="">Все</option>` + values.map((v) => `<option>${escapeHtml(v)}</option>`).join('');
+        select.addEventListener('change', () => {
+          state.filters[field] = select.value;
+          applyFiltersAndRender();
+        });
+        wrap.appendChild(select);
+        root.appendChild(wrap);
+      });
+    }
+
+    function applyFiltersAndRender() {
+      state.filteredRows = state.rows.filter((row) => {
+        return Object.entries(state.filters).every(([f, val]) => !val || row[f] === val);
+      });
+      renderAll();
+    }
+
+    function renderAll() {
+      const direction = directionInput.value.trim() || 'Без названия';
+      document.getElementById('dashboardTitle').textContent = `Сводка направления: ${direction}`;
+
+      renderSummaryCards();
+      renderMeta();
+      renderCharts();
+      renderGroupTable();
+      renderRiskBlock();
+      renderDataTable();
+      buildGroupSelector();
     }
 
     function findField(hints) {
@@ -464,7 +387,7 @@
     function parseDateAny(s) {
       if (!s) return null;
       const direct = new Date(s);
-      if (!Number.isNaN(direct)) return direct;
+      if (!isNaN(direct)) return direct;
       const m = String(s).match(/(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})(?:\s+(\d{1,2}):(\d{2}))?/);
       if (!m) return null;
       const y = Number(m[3].length === 2 ? '20' + m[3] : m[3]);
@@ -472,118 +395,98 @@
     }
 
     function isDone(row) {
-      const sf = findField(statusHints);
-      if (!sf) return false;
-      const v = (row[sf] || '').toLowerCase();
-      return ['заверш', 'done', 'closed', 'выполн', 'completed'].some((x) => v.includes(x));
-    }
-
-    function buildFilters() {
-      const root = document.getElementById('filters');
-      root.innerHTML = '';
-      state.filters = {};
-      state.lowCardinalityFields.slice(0, 10).forEach((field) => {
-        const values = Array.from(new Set(state.rows.map((r) => r[field]).filter(Boolean))).sort();
-        const d = document.createElement('div');
-        d.className = 'field';
-        const s = document.createElement('select');
-        s.innerHTML = `<option value="">${escapeHtml(field)}: все</option>` + values.map((v) => `<option>${escapeHtml(v)}</option>`).join('');
-        s.addEventListener('change', () => {
-          state.filters[field] = s.value;
-          applyFiltersAndRender();
-        });
-        d.appendChild(s);
-        root.appendChild(d);
-      });
-    }
-
-    function applyFiltersAndRender() {
-      state.filteredRows = state.rows.filter((r) => Object.entries(state.filters).every(([f, v]) => !v || r[f] === v));
-      renderAll();
-    }
-
-    function renderAll() {
-      const direction = directionInput.value.trim() || 'Без названия';
-      document.getElementById('dashboardTitle').textContent = `Rossilber • Направление: ${direction}`;
-      renderSummaryCards();
-      renderMeta();
-      renderCharts();
-      buildGroupSelector();
-      renderGroupTable();
-      renderRiskBlock();
-      renderTaskTable();
+      const statusField = findField(statusFieldsHint);
+      if (!statusField) return false;
+      const v = (row[statusField] || '').toLowerCase();
+      return ['заверш', 'closed', 'done', 'completed', 'выполн'].some((x) => v.includes(x));
     }
 
     function renderSummaryCards() {
       const rows = state.filteredRows;
-      const projectField = findField(projectHints);
-      const execField = findField(['исполнитель', 'responsible']);
+      const projectField = findField(projectFieldsHint);
+      const statusField = findField(statusFieldsHint);
+      const executorField = findField(['исполнитель', 'responsible']);
       const deadlineField = findField(['крайний срок', 'deadline', 'планируемая дата окончания']);
       const activityField = findField(['последняя активность', 'activity']);
 
+      const total = rows.length;
+      const projects = projectField ? new Set(rows.map((r) => r[projectField]).filter(Boolean)).size : 0;
+      const done = rows.filter(isDone).length;
+      const activeExecutors = executorField ? new Set(rows.map((r) => r[executorField]).filter(Boolean)).size : 0;
       const overdue = deadlineField ? rows.filter((r) => {
         const d = parseDateAny(r[deadlineField]);
         return d && d < new Date() && !isDone(r);
       }).length : 0;
+      const hot7 = activityField ? rows.filter((r) => {
+        const d = parseDateAny(r[activityField]);
+        return d && (Date.now() - d.getTime()) <= 7 * 86400000;
+      }).length : 0;
 
       const cards = [
-        ['Всего задач', rows.length],
-        ['Проектов', projectField ? new Set(rows.map((r) => r[projectField]).filter(Boolean)).size : 0],
-        ['Исполнителей', execField ? new Set(rows.map((r) => r[execField]).filter(Boolean)).size : 0],
-        ['Завершено', rows.filter(isDone).length],
+        ['Всего задач', total],
+        ['Проектов', projects],
+        ['Исполнителей', activeExecutors],
+        ['Завершено', done],
         ['Просрочено', overdue],
-        ['Активно за 7 дней', activityField ? rows.filter((r) => {
-          const d = parseDateAny(r[activityField]);
-          return d && Date.now() - d.getTime() <= 7 * 86400000;
-        }).length : 0]
+        ['Активность за 7 дней', hot7]
       ];
 
-      document.getElementById('summaryCards').innerHTML = cards.map(([k, v]) => `<div class="card"><div class="label">${k}</div><div class="value">${v}</div></div>`).join('');
+      document.getElementById('summaryCards').innerHTML = cards.map(([k, v]) =>
+        `<div class="card"><div class="label">${k}</div><div class="value">${v}</div></div>`
+      ).join('');
+
+      if (statusField) {
+        const byStatus = counter(rows, statusField);
+        const topStatus = Object.entries(byStatus).sort((a, b) => b[1] - a[1]).slice(0, 3)
+          .map(([k, v]) => `${k}: ${v}`).join(' • ');
+        document.getElementById('status').textContent += ` | Топ статусы: ${topStatus}`;
+      }
     }
 
     function renderMeta() {
-      const chips = [
-        `Показано: ${state.filteredRows.length} / ${state.rows.length}`,
-        `Поля: ${state.headers.length}`
-      ];
-      const pf = findField(projectHints); if (pf) chips.push(`Проекты: ${pf}`);
-      const sf = findField(statusHints); if (sf) chips.push(`Статусы: ${sf}`);
-      document.getElementById('metaChips').innerHTML = chips.map((x) => `<span class="chip">${x}</span>`).join('');
+      const chips = [];
+      chips.push(`Показано задач: ${state.filteredRows.length} из ${state.rows.length}`);
+      chips.push(`Поля в источнике: ${state.headers.length}`);
+      const projField = findField(projectFieldsHint);
+      if (projField) chips.push(`Поле проектов: ${projField}`);
+      const statusField = findField(statusFieldsHint);
+      if (statusField) chips.push(`Поле статусов: ${statusField}`);
+
+      document.getElementById('metaChips').innerHTML = chips.map((c) => `<span class="chip">${c}</span>`).join('');
     }
 
     function counter(rows, field) {
       const m = {};
       rows.forEach((r) => {
-        const k = r[field] || '(пусто)';
-        m[k] = (m[k] || 0) + 1;
+        const key = r[field] || '(пусто)';
+        m[key] = (m[key] || 0) + 1;
       });
       return m;
     }
 
-    function topEntries(obj, n = 12) {
+    function topEntries(obj, n = 10) {
       return Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, n);
     }
 
     function renderCharts() {
       const rows = state.filteredRows;
-      if (!rows.length) return;
-      const statusField = findField(statusHints) || state.headers[0];
-      const projectField = findField(projectHints) || state.headers[1] || state.headers[0];
-      const execField = findField(['исполнитель', 'responsible']) || state.headers[2] || state.headers[0];
+      const statusField = findField(statusFieldsHint) || state.lowCardinalityFields[0] || state.headers[0];
+      const projectField = findField(projectFieldsHint) || state.lowCardinalityFields[1] || state.headers[1];
+      const execField = findField(['исполнитель', 'responsible']) || state.lowCardinalityFields[2] || state.headers[2];
       const timelineField = findField(['дата создания', 'крайний срок', 'последняя активность']) || state.headers[0];
 
-      makeChart('statusChart', 'doughnut', topEntries(counter(rows, statusField), 12), `Распределение: ${statusField}`);
-      makeChart('projectChart', 'bar', topEntries(counter(rows, projectField), 10), `Топ проекты: ${projectField}`);
-      makeChart('executorChart', 'bar', topEntries(counter(rows, execField), 10), `Нагрузка: ${execField}`);
+      makeChart('statusChart', 'doughnut', topEntries(counter(rows, statusField), 12), `Распределение по: ${statusField}`);
+      makeChart('projectChart', 'bar', topEntries(counter(rows, projectField), 10), `Топ проектов: ${projectField}`);
+      makeChart('executorChart', 'bar', topEntries(counter(rows, execField), 12), `Нагрузка по: ${execField}`);
 
       const monthly = {};
       rows.forEach((r) => {
         const d = parseDateAny(r[timelineField]);
         if (!d) return;
-        const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-        monthly[k] = (monthly[k] || 0) + 1;
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        monthly[key] = (monthly[key] || 0) + 1;
       });
-      makeChart('timelineChart', 'line', Object.entries(monthly).sort((a, b) => a[0].localeCompare(b[0])), `Динамика: ${timelineField}`);
+      makeChart('timelineChart', 'line', Object.entries(monthly).sort((a, b) => a[0].localeCompare(b[0])), `Динамика по дате: ${timelineField}`);
     }
 
     function makeChart(id, type, dataEntries, title) {
@@ -600,9 +503,9 @@
             label: 'Задач',
             data: values,
             borderWidth: 1,
-            backgroundColor: labels.map((_, i) => `hsl(${(i * 31) % 360} 65% 53% / 0.7)`),
-            borderColor: labels.map((_, i) => `hsl(${(i * 31) % 360} 65% 40%)`),
-            tension: 0.24
+            backgroundColor: labels.map((_, i) => `hsl(${(i * 37) % 360} 72% 55% / 0.72)`),
+            borderColor: labels.map((_, i) => `hsl(${(i * 37) % 360} 72% 45%)`),
+            tension: 0.25
           }]
         },
         options: {
@@ -612,7 +515,10 @@
             legend: { display: type !== 'bar' },
             title: { display: true, text: title }
           },
-          scales: type === 'doughnut' ? {} : { y: { beginAtZero: true } }
+          scales: type === 'doughnut' ? {} : {
+            x: { ticks: { maxRotation: 45, minRotation: 10 } },
+            y: { beginAtZero: true }
+          }
         }
       });
     }
@@ -620,7 +526,8 @@
     function buildGroupSelector() {
       const select = document.getElementById('groupFieldSelect');
       const current = select.value;
-      select.innerHTML = state.headers.map((h) => `<option ${h === current ? 'selected' : ''}>${escapeHtml(h)}</option>`).join('');
+      const options = state.headers.map((h) => `<option ${h === current ? 'selected' : ''}>${escapeHtml(h)}</option>`).join('');
+      select.innerHTML = options;
       if (!select.dataset.bound) {
         select.addEventListener('change', renderGroupTable);
         select.dataset.bound = '1';
@@ -630,10 +537,10 @@
     function renderGroupTable() {
       const field = document.getElementById('groupFieldSelect').value || state.headers[0];
       if (!field) return;
-      const rows = topEntries(counter(state.filteredRows, field), 60);
-      const html = ['<tr><th>Значение</th><th>Количество</th><th>Доля</th></tr>'];
+      const rows = topEntries(counter(state.filteredRows, field), 50);
+      const html = ['<tr><th>Значение</th><th>Количество задач</th><th>Доля</th></tr>'];
       rows.forEach(([k, v]) => {
-        const p = state.filteredRows.length ? (100 * v / state.filteredRows.length).toFixed(1) : '0.0';
+        const p = state.filteredRows.length ? (v / state.filteredRows.length * 100).toFixed(1) : '0.0';
         html.push(`<tr><td>${escapeHtml(k)}</td><td>${v}</td><td>${p}%</td></tr>`);
       });
       document.getElementById('groupTable').innerHTML = html.join('');
@@ -641,83 +548,33 @@
 
     function renderRiskBlock() {
       const deadlineField = findField(['крайний срок', 'deadline', 'планируемая дата окончания']);
-      const ownerField = findField(['исполнитель', 'responsible']) || state.headers[0];
-      const root = document.getElementById('riskBlock');
+      const executorField = findField(['исполнитель', 'responsible']) || state.headers[0];
+      const riskEl = document.getElementById('riskBlock');
       if (!deadlineField) {
-        root.innerHTML = '<p style="color:#667085;">Поле срока не найдено: оценка просрочек ограничена.</p>';
+        riskEl.innerHTML = '<p>В данных нет поля сроков — блок рисков ограничен.</p>';
         return;
       }
 
-      const overdueRows = state.filteredRows.filter((r) => {
+      const overdue = state.filteredRows.filter((r) => {
         const d = parseDateAny(r[deadlineField]);
         return d && d < new Date() && !isDone(r);
       });
-
-      const topOwners = topEntries(counter(overdueRows, ownerField), 8);
-      root.innerHTML = `
-        <p><b style="color:var(--danger);">Просрочено:</b> ${overdueRows.length}</p>
-        <p><b>Где концентрация риска:</b></p>
-        <ul>${topOwners.map(([k, v]) => `<li>${escapeHtml(k)} — ${v}</li>`).join('')}</ul>
+      const byOwner = topEntries(counter(overdue, executorField), 8);
+      riskEl.innerHTML = `
+        <p><b>Просроченных задач:</b> ${overdue.length}</p>
+        <p><b>Наибольшая концентрация просрочек:</b></p>
+        <ul>${byOwner.map(([k, v]) => `<li>${escapeHtml(k)} — ${v}</li>`).join('')}</ul>
       `;
     }
 
-    function getTaskRowsForView() {
-      let rows = [...state.filteredRows];
-      if (state.taskSearch) {
-        rows = rows.filter((row) => state.headers.some((h) => String(row[h] || '').toLowerCase().includes(state.taskSearch)));
-      }
-      if (state.sortField) {
-        rows.sort((a, b) => {
-          const av = String(a[state.sortField] || '').toLowerCase();
-          const bv = String(b[state.sortField] || '').toLowerCase();
-          return av.localeCompare(bv, 'ru') * state.sortDir;
-        });
-      }
-      return rows;
-    }
-
-    function renderTaskTable() {
-      const tbl = document.getElementById('taskTable');
-      const nameField = findField(['название', 'тема']) || state.headers[0];
-      const baseIdField = findField(['id базовой задачи']);
-      const deadlineField = findField(['крайний срок', 'deadline']);
-      const rows = getTaskRowsForView();
-
-      const head = '<tr><th style="min-width:36px;">✓</th>' + state.headers.map((h) => `<th data-sort="${escapeHtml(h)}">${escapeHtml(h)}${state.sortField === h ? (state.sortDir > 0 ? ' ↑' : ' ↓') : ''}</th>`).join('') + '</tr>';
-      const body = rows.slice(0, 900).map((r, i) => {
-        const depth = baseIdField && r[baseIdField] ? 1 : 0;
-        const overdue = deadlineField && parseDateAny(r[deadlineField]) && parseDateAny(r[deadlineField]) < new Date() && !isDone(r);
-        const css = `${overdue ? 'row-overdue' : ''} ${isDone(r) ? 'row-done' : ''}`.trim();
-
-        return `<tr class="${css}">
-          <td><input class="row-select" data-index="${i}" type="checkbox" /></td>
-          ${state.headers.map((h) => {
-            const val = escapeHtml(r[h] || '');
-            const cls = h === nameField ? `indent-${Math.min(depth, 3)}` : '';
-            return `<td class="${cls}" contenteditable="true" data-row="${i}" data-col="${escapeHtml(h)}">${val}</td>`;
-          }).join('')}
-        </tr>`;
-      }).join('');
-
-      tbl.innerHTML = head + body;
-
-      tbl.querySelectorAll('th[data-sort]').forEach((th) => {
-        th.addEventListener('click', () => {
-          const field = th.dataset.sort;
-          if (state.sortField === field) state.sortDir *= -1;
-          else { state.sortField = field; state.sortDir = 1; }
-          renderTaskTable();
-        });
+    function renderDataTable() {
+      const headers = state.headers;
+      const rows = state.filteredRows.slice(0, 500);
+      const out = ['<tr>' + headers.map((h) => `<th>${escapeHtml(h)}</th>`).join('') + '</tr>'];
+      rows.forEach((r) => {
+        out.push('<tr>' + headers.map((h) => `<td>${escapeHtml(r[h] || '')}</td>`).join('') + '</tr>');
       });
-
-      tbl.querySelectorAll('td[contenteditable="true"]').forEach((td) => {
-        td.addEventListener('blur', () => {
-          const row = rows[Number(td.dataset.row)];
-          row[td.dataset.col] = normalizeCell(td.textContent);
-          renderSummaryCards();
-          renderRiskBlock();
-        });
-      });
+      document.getElementById('dataTable').innerHTML = out.join('');
     }
 
     function escapeHtml(text) {
@@ -727,11 +584,6 @@
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#39;');
-    }
-
-    function escapeCsv(text) {
-      const v = String(text ?? '').replaceAll('"', '""');
-      return `"${v}"`;
     }
   </script>
 </body>
